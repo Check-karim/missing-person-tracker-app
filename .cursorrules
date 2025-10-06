@@ -1,0 +1,226 @@
+# Missing Person Tracker - Cursor Rules
+
+## Project Overview
+A mobile-first web application built with Next.js, TypeScript, Tailwind CSS, and MySQL for tracking and reporting missing persons. The application features user authentication, real-time updates, and an admin dashboard with analytics.
+
+## Tech Stack
+- **Framework**: Next.js 14 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **Database**: MySQL
+- **Authentication**: JWT (JSON Web Tokens)
+- **State Management**: React Context API
+- **Date Handling**: date-fns
+- **Notifications**: react-hot-toast
+- **Charts**: Chart.js with react-chartjs-2
+
+## Project Structure
+```
+├── src/
+│   ├── app/                    # Next.js app router pages
+│   │   ├── api/               # API routes
+│   │   │   ├── auth/         # Authentication endpoints
+│   │   │   ├── missing-persons/ # Missing persons CRUD
+│   │   │   ├── comments/     # Comments endpoints
+│   │   │   ├── notifications/ # Notifications endpoints
+│   │   │   └── admin/        # Admin analytics
+│   │   ├── auth/             # Auth pages (login, register)
+│   │   ├── dashboard/        # Main dashboard
+│   │   ├── missing-persons/  # Missing persons pages
+│   │   ├── report/           # Report missing person
+│   │   ├── my-reports/       # User's reports
+│   │   └── admin/            # Admin dashboard
+│   ├── components/           # Reusable React components
+│   ├── contexts/             # React Context providers
+│   ├── lib/                  # Utility functions and configs
+│   │   ├── db.ts            # Database connection
+│   │   ├── auth.ts          # Auth utilities
+│   │   └── middleware.ts    # API middleware
+│   └── types/               # TypeScript type definitions
+├── database.sql             # Database schema
+└── package.json            # Dependencies
+
+## Key Features
+1. **User Authentication**
+   - User registration and login
+   - Admin access with predefined credentials
+   - JWT-based authentication
+   - Protected routes
+
+2. **Missing Person Management**
+   - Report missing persons with detailed information
+   - Search and filter capabilities
+   - Status tracking (missing, investigation, found, closed)
+   - Priority levels (low, medium, high, critical)
+   - Photo uploads support
+   - Case numbers auto-generation
+
+3. **User Features**
+   - View all missing persons
+   - Report missing persons
+   - Track own reports
+   - Update case status
+   - Add comments and tips (anonymous option)
+   - Receive notifications
+
+4. **Admin Features**
+   - Comprehensive dashboard with analytics
+   - View statistics (total cases, found, missing, etc.)
+   - Age and gender distribution
+   - Priority case tracking
+   - Average resolution time
+   - Status distribution
+   - Recent cases overview
+
+5. **Mobile-First Design**
+   - Responsive layouts for all screen sizes
+   - Bottom navigation for mobile
+   - Top navigation for desktop
+   - Touch-friendly interfaces
+   - Optimized for mobile performance
+
+## Coding Standards
+
+### TypeScript
+- Use strict type checking
+- Define interfaces for all data structures
+- Avoid `any` types where possible
+- Use proper type annotations for function parameters and returns
+
+### React/Next.js
+- Use functional components with hooks
+- Implement proper error boundaries
+- Use 'use client' directive for client components
+- Leverage Next.js App Router patterns
+- Use proper loading states and error handling
+
+### API Routes
+- Implement proper authentication middleware
+- Validate all inputs
+- Return consistent error responses
+- Use appropriate HTTP status codes
+- Implement proper error handling
+
+### Styling
+- Use Tailwind CSS utility classes
+- Follow mobile-first approach
+- Maintain consistent spacing and colors
+- Use the defined color palette (primary colors)
+- Ensure accessibility (ARIA labels, semantic HTML)
+
+### Database
+- Use parameterized queries to prevent SQL injection
+- Implement proper error handling
+- Use transactions for multi-step operations
+- Index frequently queried columns
+- Follow normalization principles
+
+## Environment Variables
+Required environment variables (see .env.local):
+- DB_HOST: MySQL host
+- DB_USER: MySQL username
+- DB_PASSWORD: MySQL password
+- DB_NAME: Database name
+- DB_PORT: MySQL port
+- JWT_SECRET: Secret key for JWT
+- ADMIN_EMAIL: Admin email
+- ADMIN_PASSWORD: Admin password
+- NEXT_PUBLIC_API_URL: API URL
+
+## Database Schema
+- **users**: User accounts (normal users and admins)
+- **missing_persons**: Missing person records
+- **status_updates**: History of status changes
+- **comments**: Comments and tips on cases
+- **notifications**: User notifications
+
+## Authentication Flow
+1. User registers/logs in
+2. Server generates JWT token
+3. Token stored in localStorage
+4. Token sent with each API request
+5. Middleware validates token
+6. User data available in protected routes
+
+## Admin Credentials
+Default admin account:
+- Email: admin@tracker.com
+- Password: Admin@123
+
+## Common Patterns
+
+### Protected Routes
+```typescript
+import ProtectedRoute from '@/components/ProtectedRoute';
+export default function Page() {
+  return <ProtectedRoute>{/* content */}</ProtectedRoute>;
+}
+```
+
+### API Calls with Auth
+```typescript
+const response = await fetch('/api/endpoint', {
+  headers: { Authorization: `Bearer ${token}` }
+});
+```
+
+### Using Auth Context
+```typescript
+const { user, token, isAdmin, login, logout } = useAuth();
+```
+
+## Best Practices
+1. Always validate user inputs
+2. Handle loading and error states
+3. Use proper TypeScript types
+4. Follow REST API conventions
+5. Implement proper error messages
+6. Use semantic HTML
+7. Maintain accessibility standards
+8. Optimize images and assets
+9. Implement proper SEO meta tags
+10. Test on multiple devices and browsers
+
+## Security Considerations
+- Passwords are hashed with bcrypt
+- JWT tokens for authentication
+- SQL injection prevention with parameterized queries
+- Input validation on both client and server
+- Protected API routes with middleware
+- CORS properly configured
+- XSS prevention
+
+## Performance Optimization
+- Server-side rendering where appropriate
+- Lazy loading for images
+- Efficient database queries
+- Proper indexing
+- Pagination for large datasets
+- Optimized bundle size
+
+## Development Commands
+- `npm run dev`: Start development server
+- `npm run build`: Build for production
+- `npm start`: Start production server
+- `npm run lint`: Run ESLint
+
+## Testing Considerations
+- Test all API endpoints
+- Verify authentication flows
+- Test responsive design
+- Validate form inputs
+- Check error handling
+- Test database operations
+- Verify admin-only features
+
+## Future Enhancements
+- Image upload functionality
+- Email notifications
+- SMS alerts
+- Map integration for locations
+- Advanced search filters
+- Export reports (PDF, CSV)
+- Multi-language support
+- Real-time updates with WebSockets
+- Push notifications
+
