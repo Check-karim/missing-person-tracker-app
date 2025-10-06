@@ -96,7 +96,7 @@ export default function ReportPage() {
                     required
                     value={formData.full_name}
                     onChange={handleChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-gray-900"
                   />
                 </div>
 
@@ -109,7 +109,7 @@ export default function ReportPage() {
                     name="age"
                     value={formData.age}
                     onChange={handleChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-gray-900"
                   />
                 </div>
 
@@ -122,7 +122,7 @@ export default function ReportPage() {
                     required
                     value={formData.gender}
                     onChange={handleChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-gray-900"
                   >
                     <option value="male">Male</option>
                     <option value="female">Female</option>
@@ -147,7 +147,7 @@ export default function ReportPage() {
                     value={formData.last_seen_location}
                     onChange={handleChange}
                     placeholder="Street address, city, state"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-gray-900"
                   />
                 </div>
 
@@ -161,7 +161,7 @@ export default function ReportPage() {
                     required
                     value={formData.last_seen_date}
                     onChange={handleChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-gray-900"
                   />
                 </div>
 
@@ -174,7 +174,7 @@ export default function ReportPage() {
                     name="last_seen_time"
                     value={formData.last_seen_time}
                     onChange={handleChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-gray-900"
                   />
                 </div>
               </div>
@@ -194,7 +194,7 @@ export default function ReportPage() {
                     value={formData.height}
                     onChange={handleChange}
                     placeholder="e.g., 5'8&quot;"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-gray-900"
                   />
                 </div>
 
@@ -208,7 +208,7 @@ export default function ReportPage() {
                     value={formData.weight}
                     onChange={handleChange}
                     placeholder="e.g., 150 lbs"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-gray-900"
                   />
                 </div>
 
@@ -221,7 +221,7 @@ export default function ReportPage() {
                     name="hair_color"
                     value={formData.hair_color}
                     onChange={handleChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-gray-900"
                   />
                 </div>
 
@@ -234,7 +234,7 @@ export default function ReportPage() {
                     name="eye_color"
                     value={formData.eye_color}
                     onChange={handleChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-gray-900"
                   />
                 </div>
 
@@ -248,7 +248,7 @@ export default function ReportPage() {
                     onChange={handleChange}
                     rows={2}
                     placeholder="Scars, tattoos, birthmarks, etc."
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-gray-900"
                   />
                 </div>
 
@@ -262,7 +262,7 @@ export default function ReportPage() {
                     onChange={handleChange}
                     rows={2}
                     placeholder="What they were wearing when last seen"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-gray-900"
                   />
                 </div>
 
@@ -276,7 +276,7 @@ export default function ReportPage() {
                     onChange={handleChange}
                     rows={2}
                     placeholder="Any medical conditions or medications"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-gray-900"
                   />
                 </div>
               </div>
@@ -296,7 +296,7 @@ export default function ReportPage() {
                     required
                     value={formData.contact_name}
                     onChange={handleChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-gray-900"
                   />
                 </div>
 
@@ -310,7 +310,7 @@ export default function ReportPage() {
                     required
                     value={formData.contact_phone}
                     onChange={handleChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-gray-900"
                   />
                 </div>
 
@@ -323,7 +323,7 @@ export default function ReportPage() {
                     name="contact_email"
                     value={formData.contact_email}
                     onChange={handleChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-gray-900"
                   />
                 </div>
               </div>
@@ -341,7 +341,7 @@ export default function ReportPage() {
                     name="priority"
                     value={formData.priority}
                     onChange={handleChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-gray-900"
                   >
                     <option value="low">Low</option>
                     <option value="medium">Medium</option>
@@ -360,7 +360,7 @@ export default function ReportPage() {
                     onChange={handleChange}
                     rows={4}
                     placeholder="Any other relevant information"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-gray-900"
                   />
                 </div>
               </div>

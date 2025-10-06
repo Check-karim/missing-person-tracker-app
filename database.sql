@@ -105,7 +105,7 @@ CREATE TABLE IF NOT EXISTS notifications (
 -- Insert Default Admin User
 -- Password: Admin@123 (hashed with bcrypt)
 INSERT INTO users (full_name, email, password, is_admin, phone) VALUES 
-('System Administrator', 'admin@tracker.com', '$2a$10$rZJ5qJYX8YJ5qJYX8YJ5qO5qJ5qJYX8YJ5qJYX8YJ5qJYX8YJ5qJe', TRUE, '+1234567890');
+('System Administrator', 'admin@tracker.com', '$2a$10$kqZyZCOWwDd64vOrPbM2jOmc130TxnBMVlz14HB0juH03emVbRU.C', TRUE, '+1234567890');
 
 -- Generate case number trigger
 DELIMITER $$

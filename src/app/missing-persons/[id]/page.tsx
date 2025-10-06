@@ -280,7 +280,7 @@ export default function MissingPersonDetailPage() {
                 onChange={(e) => setNewComment(e.target.value)}
                 placeholder="Add a comment or tip..."
                 rows={3}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none mb-2"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none mb-2 text-gray-900"
               />
               <div className="flex items-center justify-between">
                 <label className="flex items-center text-sm text-gray-600">
@@ -334,7 +334,7 @@ export default function MissingPersonDetailPage() {
                 <select
                   value={newStatus}
                   onChange={(e) => setNewStatus(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none text-gray-900"
                 >
                   <option value="">Select status...</option>
                   <option value="missing">Missing</option>
@@ -351,7 +351,7 @@ export default function MissingPersonDetailPage() {
                     type="text"
                     value={foundLocation}
                     onChange={(e) => setFoundLocation(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none text-gray-900"
                   />
                 </div>
               )}
@@ -363,7 +363,7 @@ export default function MissingPersonDetailPage() {
                   onChange={(e) => setUpdateNote(e.target.value)}
                   rows={3}
                   placeholder="Add details about this status update..."
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none text-gray-900"
                 />
               </div>
 
