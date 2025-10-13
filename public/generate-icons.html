@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generate PWA Icons</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .icon-preview {
+      display: flex;
+      gap: 20px;
+      margin: 20px 0;
+    }
+    canvas {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+    button {
+      background: #e11d48;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:hover {
+      background: #be123c;
+    }
+    .instructions {
+      background: #f3f4f6;
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Generate PWA Icons</h1>
+  
+  <div class="instructions">
+    <h3>Instructions:</h3>
+    <ol>
+      <li>Click the buttons below to download the icon files</li>
+      <li>Save them as <code>icon-192.png</code> and <code>icon-512.png</code> in the <code>public</code> folder</li>
+      <li>Delete this HTML file after generating the icons</li>
+    </ol>
+  </div>
+
+  <div class="icon-preview">
+    <div>
+      <h3>192x192</h3>
+      <canvas id="icon192" width="192" height="192"></canvas>
+      <br>
+      <button onclick="downloadIcon('icon192', 'icon-192.png')">Download 192x192</button>
+    </div>
+    <div>
+      <h3>512x512</h3>
+      <canvas id="icon512" width="512" height="512"></canvas>
+      <br>
+      <button onclick="downloadIcon('icon512', 'icon-512.png')">Download 512x512</button>
+    </div>
+  </div>
+
+  <script>
+    function drawIcon(canvasId, size) {
+      const canvas = document.getElementById(canvasId);
+      const ctx = canvas.getContext('2d');
+      
+      // Background
+      ctx.fillStyle = '#e11d48';
+      ctx.fillRect(0, 0, size, size);
+      
+      // Add rounded corners effect
+      ctx.globalCompositeOperation = 'destination-in';
+      ctx.beginPath();
+      ctx.roundRect(0, 0, size, size, size * 0.1);
+      ctx.fill();
+      ctx.globalCompositeOperation = 'source-over';
+      
+      // White circle background
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+      ctx.beginPath();
+      ctx.arc(size / 2, size / 2, size * 0.38, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Draw magnifying glass icon
+      const centerX = size / 2;
+      const centerY = size / 2 - size * 0.05;
+      const radius = size * 0.15;
+      
+      // Circle
+      ctx.strokeStyle = 'white';
+      ctx.lineWidth = size * 0.04;
+      ctx.beginPath();
+      ctx.arc(centerX - size * 0.05, centerY - size * 0.05, radius, 0, Math.PI * 2);
+      ctx.stroke();
+      
+      // Handle
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(
+        centerX - size * 0.05 + radius * Math.cos(Math.PI / 4),
+        centerY - size * 0.05 + radius * Math.sin(Math.PI / 4)
+      );
+      ctx.lineTo(
+        centerX - size * 0.05 + radius * Math.cos(Math.PI / 4) + size * 0.08,
+        centerY - size * 0.05 + radius * Math.sin(Math.PI / 4) + size * 0.08
+      );
+      ctx.stroke();
+      
+      // Person silhouette
+      const personSize = size * 0.12;
+      const personX = centerX + size * 0.15;
+      const personY = centerY + size * 0.05;
+      
+      // Head
+      ctx.fillStyle = 'white';
+      ctx.beginPath();
+      ctx.arc(personX, personY, personSize * 0.3, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Body
+      ctx.beginPath();
+      ctx.moveTo(personX, personY + personSize * 0.35);
+      ctx.lineTo(personX - personSize * 0.4, personY + personSize * 0.9);
+      ctx.lineTo(personX + personSize * 0.4, personY + personSize * 0.9);
+      ctx.closePath();
+      ctx.fill();
+      
+      // Text
+      ctx.fillStyle = 'white';
+      ctx.font = `bold ${size * 0.08}px Arial`;
+      ctx.textAlign = 'center';
+      ctx.fillText('MPT', size / 2, size - size * 0.15);
+    }
+    
+    function downloadIcon(canvasId, filename) {
+      const canvas = document.getElementById(canvasId);
+      const link = document.createElement('a');
+      link.download = filename;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+    
+    // Draw icons on page load
+    drawIcon('icon192', 192);
+    drawIcon('icon512', 512);
+  </script>
+</body>
+</html>
+

@@ -99,5 +99,17 @@ export interface DashboardStats {
     missing: number;
     found: number;
   }[];
+  ageDistribution: {
+    age_group: string;
+    count: number;
+  }[];
+  genderDistribution: {
+    gender: string;
+    count: number;
+  }[];
+  priorityDistribution: {
+    priority: string;
+    count: number;
+  }[];
 }
 

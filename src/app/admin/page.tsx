@@ -44,6 +44,102 @@ export default function AdminDashboard() {
     }
   };
 
+  const downloadReport = () => {
+    if (!data) return;
+
+    try {
+      // Generate CSV content
+      let csvContent = 'Missing Person Tracker - Analytics Report\n';
+      csvContent += `Generated: ${format(new Date(), 'PPpp')}\n\n`;
+
+      // Overall Statistics
+      csvContent += 'OVERALL STATISTICS\n';
+      csvContent += 'Metric,Value\n';
+      csvContent += `Total Cases,${data.statistics.total_cases || 0}\n`;
+      csvContent += `Active Missing,${data.statistics.active_missing || 0}\n`;
+      csvContent += `Found Cases,${data.statistics.found_cases || 0}\n`;
+      csvContent += `Under Investigation,${data.statistics.under_investigation || 0}\n`;
+      csvContent += `Closed Cases,${data.statistics.closed_cases || 0}\n`;
+      csvContent += `Critical Priority,${data.statistics.critical_cases || 0}\n`;
+      csvContent += `High Priority,${data.statistics.high_priority_cases || 0}\n`;
+      csvContent += `Average Days to Find,${data.statistics.avg_days_to_find ? Math.round(data.statistics.avg_days_to_find) : 0}\n`;
+      csvContent += '\n';
+
+      // Status Distribution
+      if (data.statusDistribution && data.statusDistribution.length > 0) {
+        csvContent += 'STATUS DISTRIBUTION\n';
+        csvContent += 'Status,Count\n';
+        data.statusDistribution.forEach(item => {
+          csvContent += `${item.status},${item.count}\n`;
+        });
+        csvContent += '\n';
+      }
+
+      // Age Distribution
+      if (data.ageDistribution && data.ageDistribution.length > 0) {
+        csvContent += 'AGE DISTRIBUTION\n';
+        csvContent += 'Age Group,Count\n';
+        data.ageDistribution.forEach((item: { age_group: string; count: number }) => {
+          csvContent += `${item.age_group},${item.count}\n`;
+        });
+        csvContent += '\n';
+      }
+
+      // Gender Distribution
+      if (data.genderDistribution && data.genderDistribution.length > 0) {
+        csvContent += 'GENDER DISTRIBUTION\n';
+        csvContent += 'Gender,Count\n';
+        data.genderDistribution.forEach((item: { gender: string; count: number }) => {
+          csvContent += `${item.gender},${item.count}\n`;
+        });
+        csvContent += '\n';
+      }
+
+      // Priority Distribution
+      if (data.priorityDistribution && data.priorityDistribution.length > 0) {
+        csvContent += 'PRIORITY DISTRIBUTION\n';
+        csvContent += 'Priority,Count\n';
+        data.priorityDistribution.forEach((item: { priority: string; count: number }) => {
+          csvContent += `${item.priority},${item.count}\n`;
+        });
+        csvContent += '\n';
+      }
+
+      // Recent Cases
+      if (data.recentCases && data.recentCases.length > 0) {
+        csvContent += 'RECENT CASES\n';
+        csvContent += 'Case Number,Full Name,Status,Priority,Days Missing,Reporter,Created Date\n';
+        data.recentCases.forEach(person => {
+          csvContent += `${person.case_number || ''},`;
+          csvContent += `"${person.full_name || ''}",`;
+          csvContent += `${person.status || ''},`;
+          csvContent += `${person.priority || ''},`;
+          csvContent += `${person.days_missing || 0},`;
+          csvContent += `"${person.reporter_name || ''}",`;
+          csvContent += `${person.created_at ? format(new Date(person.created_at), 'PP') : ''}\n`;
+        });
+      }
+
+      // Create download
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      
+      link.setAttribute('href', url);
+      link.setAttribute('download', `missing-person-analytics-${format(new Date(), 'yyyy-MM-dd')}.csv`);
+      link.style.visibility = 'hidden';
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast.success('Report downloaded successfully');
+    } catch (error) {
+      console.error('Download error:', error);
+      toast.error('Failed to download report');
+    }
+  };
+
   if (loading) {
     return (
       <ProtectedRoute>
@@ -72,9 +168,20 @@ export default function AdminDashboard() {
         <Navigation />
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="mb-6">
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Admin Dashboard</h1>
-            <p className="text-gray-600 mt-1">Analytics and system overview</p>
+          <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Admin Dashboard</h1>
+              <p className="text-gray-600 mt-1">Analytics and system overview</p>
+            </div>
+            <button
+              onClick={downloadReport}
+              className="inline-flex items-center justify-center px-4 py-2.5 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition shadow-sm font-medium"
+            >
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Download Report
+            </button>
           </div>
 
           {/* Main Stats */}
@@ -179,7 +286,7 @@ export default function AdminDashboard() {
             <div className="bg-white rounded-xl p-6 shadow-sm mb-6">
               <h2 className="text-lg font-semibold text-gray-800 mb-4">Age Distribution</h2>
               <div className="space-y-2">
-                {data.ageDistribution.map((item) => (
+                {data.ageDistribution.map((item: { age_group: string; count: number }) => (
                   <div key={item.age_group} className="flex items-center justify-between">
                     <span className="text-gray-700">{item.age_group}</span>
                     <div className="flex items-center space-x-3">
@@ -202,7 +309,7 @@ export default function AdminDashboard() {
             <div className="bg-white rounded-xl p-6 shadow-sm mb-6">
               <h2 className="text-lg font-semibold text-gray-800 mb-4">Gender Distribution</h2>
               <div className="grid grid-cols-3 gap-4">
-                {data.genderDistribution.map((item) => (
+                {data.genderDistribution.map((item: { gender: string; count: number }) => (
                   <div key={item.gender} className="text-center p-4 bg-gray-50 rounded-lg">
                     <p className="text-2xl font-bold text-gray-800">{item.count}</p>
                     <p className="text-sm text-gray-600 capitalize">{item.gender}</p>
