@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/lib/db';
+import { query, execute } from '@/lib/db';
 import { authMiddleware, AuthRequest } from '@/lib/middleware';
 import { Comment } from '@/types';
 
@@ -53,13 +53,13 @@ export const POST = authMiddleware(async (req: AuthRequest) => {
       );
     }
 
-    const result = await query<any>(
+    const result = await execute(
       `INSERT INTO comments (missing_person_id, user_id, comment, is_anonymous)
        VALUES (?, ?, ?, ?)`,
       [missing_person_id, req.user!.id, comment, is_anonymous || false]
     );
 
-    const commentId = result[0]?.insertId;
+    const commentId = result.insertId;
 
     // Get the missing person to notify reporter
     const missingPerson = await query<{ reporter_id: number; full_name: string }>(
@@ -69,7 +69,7 @@ export const POST = authMiddleware(async (req: AuthRequest) => {
 
     if (missingPerson.length > 0 && missingPerson[0].reporter_id !== req.user!.id) {
       // Create notification for reporter
-      await query(
+      await execute(
         `INSERT INTO notifications (user_id, missing_person_id, title, message, type)
          VALUES (?, ?, ?, ?, ?)`,
         [

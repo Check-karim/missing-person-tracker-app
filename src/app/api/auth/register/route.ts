@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/lib/db';
+import { query, execute } from '@/lib/db';
 import { hashPassword, generateToken } from '@/lib/auth';
 import { User } from '@/types';
 
@@ -39,12 +39,12 @@ export async function POST(req: NextRequest) {
     const hashedPassword = await hashPassword(password);
 
     // Create user
-    const result = await query<any>(
+    const result = await execute(
       'INSERT INTO users (full_name, email, password, phone) VALUES (?, ?, ?, ?)',
-      [full_name, email, hashedPassword, phone || null]
+      [full_name, email, hashedPassword, phone ?? null]
     );
 
-    const userId = result[0]?.insertId;
+    const userId = result.insertId;
 
     // Get created user
     const [newUser] = await query<User>(

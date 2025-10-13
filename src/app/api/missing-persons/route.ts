@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/lib/db';
+import { query, execute } from '@/lib/db';
 import { authMiddleware, AuthRequest } from '@/lib/middleware';
 import { MissingPerson } from '@/types';
 
@@ -128,7 +128,8 @@ export const POST = authMiddleware(async (req: AuthRequest) => {
     // Generate case number
     const caseNumber = `MP${new Date().getFullYear()}${Math.floor(Math.random() * 999999).toString().padStart(6, '0')}`;
 
-    const result = await query<any>(
+    // Convert undefined to null for optional fields
+    const result = await execute(
       `INSERT INTO missing_persons (
         reporter_id, full_name, age, gender, last_seen_location,
         last_seen_date, last_seen_time, height, weight, hair_color,
@@ -137,15 +138,32 @@ export const POST = authMiddleware(async (req: AuthRequest) => {
         contact_email, additional_info, priority, case_number
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        req.user!.id, full_name, age, gender, last_seen_location,
-        last_seen_date, last_seen_time, height, weight, hair_color,
-        eye_color, skin_tone, distinctive_features, clothing_description,
-        medical_conditions, photo_url, contact_name, contact_phone,
-        contact_email, additional_info, priority || 'medium', caseNumber
+        req.user!.id, 
+        full_name, 
+        age ?? null, 
+        gender, 
+        last_seen_location,
+        last_seen_date, 
+        last_seen_time ?? null, 
+        height ?? null, 
+        weight ?? null, 
+        hair_color ?? null,
+        eye_color ?? null, 
+        skin_tone ?? null, 
+        distinctive_features ?? null, 
+        clothing_description ?? null,
+        medical_conditions ?? null, 
+        photo_url ?? null, 
+        contact_name, 
+        contact_phone,
+        contact_email ?? null, 
+        additional_info ?? null, 
+        priority || 'medium', 
+        caseNumber
       ]
     );
 
-    const missingPersonId = result[0]?.insertId;
+    const missingPersonId = result.insertId;
 
     // Get created record
     const [missingPerson] = await query<MissingPerson>(

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/lib/db';
+import { query, execute } from '@/lib/db';
 import { authMiddleware, AuthRequest } from '@/lib/middleware';
 import { MissingPerson } from '@/types';
 
@@ -55,13 +55,13 @@ export const PUT = authMiddleware(async (req: AuthRequest, { params }: { params:
     updateSql += ' WHERE id = ?';
     updateParams.push(params.id);
 
-    await query(updateSql, updateParams);
+    await execute(updateSql, updateParams);
 
     // Log status update
-    await query(
+    await execute(
       `INSERT INTO status_updates (missing_person_id, user_id, old_status, new_status, update_note)
        VALUES (?, ?, ?, ?, ?)`,
-      [params.id, req.user!.id, oldStatus, newStatus, update_note || null]
+      [params.id, req.user!.id, oldStatus, newStatus, update_note ?? null]
     );
 
     // Create notification for reporter if status changed by someone else
@@ -70,7 +70,7 @@ export const PUT = authMiddleware(async (req: AuthRequest, { params }: { params:
         ? `Great news! ${existing[0].full_name} has been found.`
         : `Status updated to: ${newStatus}`;
 
-      await query(
+      await execute(
         `INSERT INTO notifications (user_id, missing_person_id, title, message, type)
          VALUES (?, ?, ?, ?, ?)`,
         [existing[0].reporter_id, params.id, 'Status Update', notificationMessage, 'status_update']

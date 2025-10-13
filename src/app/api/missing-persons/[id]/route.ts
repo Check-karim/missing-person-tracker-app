@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/lib/db';
+import { query, execute } from '@/lib/db';
 import { authMiddleware, AuthRequest } from '@/lib/middleware';
 import { MissingPerson } from '@/types';
 
@@ -80,7 +80,8 @@ export const PUT = authMiddleware(async (req: AuthRequest, { params }: { params:
     for (const field of allowedFields) {
       if (data[field] !== undefined) {
         updateFields.push(`${field} = ?`);
-        updateValues.push(data[field]);
+        // Use null for empty/null values for database compatibility
+        updateValues.push(data[field] === '' ? null : data[field]);
       }
     }
 
@@ -97,6 +98,21 @@ export const PUT = authMiddleware(async (req: AuthRequest, { params }: { params:
       `UPDATE missing_persons SET ${updateFields.join(', ')} WHERE id = ?`,
       updateValues
     );
+
+    // Create notification for reporter if updated by someone else
+    if (existing[0].reporter_id !== req.user!.id) {
+      await execute(
+        `INSERT INTO notifications (user_id, missing_person_id, title, message, type)
+         VALUES (?, ?, ?, ?, ?)`,
+        [
+          existing[0].reporter_id,
+          params.id,
+          'Case Updated',
+          `Your report for ${existing[0].full_name} has been updated.`,
+          'general'
+        ]
+      );
+    }
 
     // Get updated record
     const [updated] = await query<MissingPerson>(

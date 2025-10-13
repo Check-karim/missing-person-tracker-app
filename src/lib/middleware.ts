@@ -9,8 +9,10 @@ export interface AuthRequest extends NextRequest {
   };
 }
 
-export function authMiddleware(handler: (req: AuthRequest) => Promise<NextResponse>) {
-  return async (req: AuthRequest) => {
+export function authMiddleware<T extends any[]>(
+  handler: (req: AuthRequest, ...args: T) => Promise<NextResponse>
+) {
+  return async (req: AuthRequest, ...args: T) => {
     const token = req.headers.get('authorization')?.replace('Bearer ', '');
     
     if (!token) {
@@ -24,16 +26,18 @@ export function authMiddleware(handler: (req: AuthRequest) => Promise<NextRespon
     }
 
     req.user = user;
-    return handler(req);
+    return handler(req, ...args);
   };
 }
 
-export function adminMiddleware(handler: (req: AuthRequest) => Promise<NextResponse>) {
-  return authMiddleware(async (req: AuthRequest) => {
+export function adminMiddleware<T extends any[]>(
+  handler: (req: AuthRequest, ...args: T) => Promise<NextResponse>
+) {
+  return authMiddleware(async (req: AuthRequest, ...args: T) => {
     if (!req.user?.is_admin) {
       return NextResponse.json({ error: 'Forbidden - Admin access required' }, { status: 403 });
     }
-    return handler(req);
+    return handler(req, ...args);
   });
 }
 
