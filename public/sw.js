@@ -1,91 +1,121 @@
-// Service Worker for Missing Person Tracker PWA
+// Service Worker for PWA functionality
 const CACHE_NAME = 'missing-person-tracker-v1';
 const urlsToCache = [
   '/',
   '/dashboard',
   '/missing-persons',
-  '/manifest.json',
+  '/report',
+  '/my-reports'
 ];
 
-// Install event - cache resources
+// Install event
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then((cache) => {
-        console.log('Opened cache');
-        return cache.addAll(urlsToCache);
-      })
-      .catch((err) => {
-        console.log('Cache install error:', err);
-      })
+      .then((cache) => cache.addAll(urlsToCache))
+      .catch((err) => console.error('Cache failed:', err))
   );
-  self.skipWaiting();
 });
 
-// Activate event - clean up old caches
+// Fetch event
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    caches.match(event.request)
+      .then((response) => {
+        // Return cached version or fetch new
+        return response || fetch(event.request);
+      })
+      .catch(() => {
+        // Return offline page if available
+        return caches.match('/');
+      })
+  );
+});
+
+// Activate event
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
-            console.log('Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
       );
     })
   );
-  self.clients.claim();
 });
 
-// Fetch event - serve from cache, fallback to network
-self.addEventListener('fetch', (event) => {
-  // Skip cross-origin requests
-  if (!event.request.url.startsWith(self.location.origin)) {
-    return;
+// Background sync for location updates
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'sync-location') {
+    event.waitUntil(syncLocation());
   }
-
-  // Skip API requests - always fetch fresh
-  if (event.request.url.includes('/api/')) {
-    event.respondWith(fetch(event.request));
-    return;
-  }
-
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        // Cache hit - return response
-        if (response) {
-          return response;
-        }
-
-        // Clone the request
-        const fetchRequest = event.request.clone();
-
-        return fetch(fetchRequest).then((response) => {
-          // Check if valid response
-          if (!response || response.status !== 200 || response.type !== 'basic') {
-            return response;
-          }
-
-          // Clone the response
-          const responseToCache = response.clone();
-
-          caches.open(CACHE_NAME)
-            .then((cache) => {
-              cache.put(event.request, responseToCache);
-            });
-
-          return response;
-        }).catch(() => {
-          // Offline fallback
-          return new Response(
-            '<html><body><h1>Offline</h1><p>You are currently offline. Please check your internet connection.</p></body></html>',
-            { headers: { 'Content-Type': 'text/html' } }
-          );
-        });
-      })
-  );
 });
 
+async function syncLocation() {
+  try {
+    // Get pending location updates from IndexedDB
+    const db = await openDB();
+    const pendingLocations = await getPendingLocations(db);
+    
+    for (const location of pendingLocations) {
+      await fetch('/api/location/update', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${location.token}`
+        },
+        body: JSON.stringify({
+          latitude: location.latitude,
+          longitude: location.longitude,
+          accuracy: location.accuracy
+        })
+      });
+    }
+    
+    await clearPendingLocations(db);
+  } catch (error) {
+    console.error('Location sync failed:', error);
+  }
+}
+
+// IndexedDB helpers
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open('LocationTracker', 1);
+    
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => resolve(request.result);
+    
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
+      if (!db.objectStoreNames.contains('pendingLocations')) {
+        db.createObjectStore('pendingLocations', { keyPath: 'id', autoIncrement: true });
+      }
+    };
+  });
+}
+
+function getPendingLocations(db) {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(['pendingLocations'], 'readonly');
+    const store = transaction.objectStore('pendingLocations');
+    const request = store.getAll();
+    
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+function clearPendingLocations(db) {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(['pendingLocations'], 'readwrite');
+    const store = transaction.objectStore('pendingLocations');
+    const request = store.clear();
+    
+    request.onsuccess = () => resolve();
+    request.onerror = () => reject(request.error);
+  });
+}

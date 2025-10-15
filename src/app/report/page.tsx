@@ -5,17 +5,23 @@ import { useRouter } from 'next/navigation';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Navigation from '@/components/Navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLocation } from '@/contexts/LocationContext';
 import toast from 'react-hot-toast';
+import MapView from '@/components/MapView';
 
 export default function ReportPage() {
   const router = useRouter();
   const { token } = useAuth();
+  const { currentLocation, requestPermission } = useLocation();
   const [loading, setLoading] = useState(false);
+  const [gettingLocation, setGettingLocation] = useState(false);
   const [formData, setFormData] = useState({
     full_name: '',
     age: '',
     gender: 'male',
     last_seen_location: '',
+    last_seen_latitude: '',
+    last_seen_longitude: '',
     last_seen_date: '',
     last_seen_time: '',
     height: '',
@@ -39,6 +45,43 @@ export default function ReportPage() {
       ...formData,
       [e.target.name]: e.target.value,
     });
+  };
+
+  const handleGetCurrentLocation = async () => {
+    setGettingLocation(true);
+    try {
+      const granted = await requestPermission();
+      if (granted && currentLocation) {
+        setFormData({
+          ...formData,
+          last_seen_latitude: currentLocation.latitude.toString(),
+          last_seen_longitude: currentLocation.longitude.toString(),
+        });
+        toast.success('Current location captured!');
+      } else {
+        // Try to get location directly if currentLocation is not yet set
+        if ('geolocation' in navigator) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              setFormData({
+                ...formData,
+                last_seen_latitude: position.coords.latitude.toString(),
+                last_seen_longitude: position.coords.longitude.toString(),
+              });
+              toast.success('Current location captured!');
+            },
+            (error) => {
+              toast.error('Failed to get location. Please enable location access.');
+            },
+            { enableHighAccuracy: true }
+          );
+        }
+      }
+    } catch (error) {
+      toast.error('Failed to get location');
+    } finally {
+      setGettingLocation(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -150,6 +193,64 @@ export default function ReportPage() {
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-gray-900"
                   />
                 </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    GPS Coordinates
+                  </label>
+                  <div className="flex space-x-2">
+                    <input
+                      type="number"
+                      step="any"
+                      name="last_seen_latitude"
+                      value={formData.last_seen_latitude}
+                      onChange={handleChange}
+                      placeholder="Latitude"
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-gray-900"
+                    />
+                    <input
+                      type="number"
+                      step="any"
+                      name="last_seen_longitude"
+                      value={formData.last_seen_longitude}
+                      onChange={handleChange}
+                      placeholder="Longitude"
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-gray-900"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleGetCurrentLocation}
+                      disabled={gettingLocation}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50 whitespace-nowrap"
+                    >
+                      {gettingLocation ? '📍...' : '📍 Use Current'}
+                    </button>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Click &quot;Use Current&quot; to automatically capture your current GPS location
+                  </p>
+                </div>
+
+                {formData.last_seen_latitude && formData.last_seen_longitude && (
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Location Preview
+                    </label>
+                    <MapView
+                      center={[parseFloat(formData.last_seen_latitude), parseFloat(formData.last_seen_longitude)]}
+                      zoom={15}
+                      markers={[
+                        {
+                          id: 'preview',
+                          position: [parseFloat(formData.last_seen_latitude), parseFloat(formData.last_seen_longitude)],
+                          title: 'Last Seen Location',
+                          type: 'missing'
+                        }
+                      ]}
+                      height="300px"
+                    />
+                  </div>
+                )}
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">

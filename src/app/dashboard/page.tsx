@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Navigation from '@/components/Navigation';
+import LocationTrackingStatus from '@/components/LocationTrackingStatus';
 import { useAuth } from '@/contexts/AuthContext';
 import { MissingPerson } from '@/types';
 import { format } from 'date-fns';
@@ -246,6 +247,7 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+      <LocationTrackingStatus />
     </ProtectedRoute>
   );
 }

@@ -2,8 +2,10 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { LocationProvider } from '@/contexts/LocationContext';
 import { Toaster } from 'react-hot-toast';
 import PWAInstallPrompt from '@/components/PWAInstallPrompt';
+import Script from 'next/script';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -40,33 +42,51 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <AuthProvider>
-          {children}
-          <PWAInstallPrompt />
-          <Toaster
-            position="top-center"
-            toastOptions={{
-              duration: 3000,
-              style: {
-                background: '#363636',
-                color: '#fff',
-              },
-              success: {
+          <LocationProvider>
+            {children}
+            <PWAInstallPrompt />
+            <Toaster
+              position="top-center"
+              toastOptions={{
                 duration: 3000,
-                iconTheme: {
-                  primary: '#10b981',
-                  secondary: '#fff',
+                style: {
+                  background: '#363636',
+                  color: '#fff',
                 },
-              },
-              error: {
-                duration: 4000,
-                iconTheme: {
-                  primary: '#ef4444',
-                  secondary: '#fff',
+                success: {
+                  duration: 3000,
+                  iconTheme: {
+                    primary: '#10b981',
+                    secondary: '#fff',
+                  },
                 },
-              },
-            }}
-          />
+                error: {
+                  duration: 4000,
+                  iconTheme: {
+                    primary: '#ef4444',
+                    secondary: '#fff',
+                  },
+                },
+              }}
+            />
+          </LocationProvider>
         </AuthProvider>
+        <Script id="register-sw" strategy="afterInteractive">
+          {`
+            if ('serviceWorker' in navigator) {
+              window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').then(
+                  (registration) => {
+                    console.log('Service Worker registered:', registration);
+                  },
+                  (error) => {
+                    console.log('Service Worker registration failed:', error);
+                  }
+                );
+              });
+            }
+          `}
+        </Script>
       </body>
     </html>
   );

@@ -16,6 +16,8 @@ export interface MissingPerson {
   age?: number;
   gender: 'male' | 'female' | 'other';
   last_seen_location: string;
+  last_seen_latitude?: number;
+  last_seen_longitude?: number;
   last_seen_date: string;
   last_seen_time?: string;
   height?: string;
@@ -34,6 +36,8 @@ export interface MissingPerson {
   status: 'missing' | 'found' | 'investigation' | 'closed';
   found_date?: Date | null;
   found_location?: string;
+  found_latitude?: number;
+  found_longitude?: number;
   found_by?: number;
   priority: 'low' | 'medium' | 'high' | 'critical';
   case_number: string;

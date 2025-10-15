@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { MissingPerson, Comment } from '@/types';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
+import MapView from '@/components/MapView';
 
 export default function MissingPersonDetailPage() {
   const params = useParams();
@@ -242,6 +243,28 @@ export default function MissingPersonDetailPage() {
                 <p className="text-sm text-gray-600">Location</p>
                 <p className="font-medium">{person.last_seen_location}</p>
               </div>
+              {person.last_seen_latitude && person.last_seen_longitude && (
+                <div>
+                  <p className="text-sm text-gray-600 mb-2">GPS Coordinates</p>
+                  <p className="font-medium text-sm mb-3">
+                    {person.last_seen_latitude}, {person.last_seen_longitude}
+                  </p>
+                  <MapView
+                    center={[parseFloat(person.last_seen_latitude.toString()), parseFloat(person.last_seen_longitude.toString())]}
+                    zoom={15}
+                    markers={[
+                      {
+                        id: person.id,
+                        position: [parseFloat(person.last_seen_latitude.toString()), parseFloat(person.last_seen_longitude.toString())],
+                        title: `Last seen: ${person.full_name}`,
+                        description: person.last_seen_location,
+                        type: person.status === 'found' ? 'found' : 'missing'
+                      }
+                    ]}
+                    height="350px"
+                  />
+                </div>
+              )}
               <div>
                 <p className="text-sm text-gray-600">Date & Time</p>
                 <p className="font-medium">

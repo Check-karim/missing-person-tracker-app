@@ -99,6 +99,8 @@ export const POST = authMiddleware(async (req: AuthRequest) => {
       age,
       gender,
       last_seen_location,
+      last_seen_latitude,
+      last_seen_longitude,
       last_seen_date,
       last_seen_time,
       height,
@@ -132,17 +134,20 @@ export const POST = authMiddleware(async (req: AuthRequest) => {
     const result = await execute(
       `INSERT INTO missing_persons (
         reporter_id, full_name, age, gender, last_seen_location,
+        last_seen_latitude, last_seen_longitude,
         last_seen_date, last_seen_time, height, weight, hair_color,
         eye_color, skin_tone, distinctive_features, clothing_description,
         medical_conditions, photo_url, contact_name, contact_phone,
         contact_email, additional_info, priority, case_number
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         req.user!.id, 
         full_name, 
         age ?? null, 
         gender, 
         last_seen_location,
+        last_seen_latitude ?? null,
+        last_seen_longitude ?? null,
         last_seen_date, 
         last_seen_time ?? null, 
         height ?? null, 
