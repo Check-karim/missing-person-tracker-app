@@ -182,36 +182,45 @@ const MapView: React.FC<MapViewProps> = ({
 
     // Add new markers
     const newMarkers = markers.map(markerData => {
-      const marker = L.marker(markerData.position, {
-        icon: getIcon(markerData.type)
-      }).addTo(map);
+      try {
+        const marker = L.marker(markerData.position, {
+          icon: getIcon(markerData.type)
+        });
+        
+        if (map) {
+          marker.addTo(map);
+        }
 
-      // Add popup
-      const popupContent = `
-        <div style="min-width: 200px;">
-          <h3 style="font-weight: bold; margin-bottom: 8px;">${markerData.title}</h3>
-          ${markerData.description ? `<p style="margin-bottom: 8px; white-space: pre-wrap;">${markerData.description}</p>` : ''}
-          ${onMarkerClick ? `<button 
-            onclick="window.markerClick && window.markerClick('${markerData.id}')"
-            style="
-              background-color: #3b82f6;
-              color: white;
-              padding: 6px 12px;
-              border-radius: 4px;
-              border: none;
-              cursor: pointer;
-              font-size: 14px;
-            "
-          >
-            View Details
-          </button>` : ''}
-        </div>
-      `;
-      
-      marker.bindPopup(popupContent);
+        // Add popup
+        const popupContent = `
+          <div style="min-width: 200px;">
+            <h3 style="font-weight: bold; margin-bottom: 8px;">${markerData.title}</h3>
+            ${markerData.description ? `<p style="margin-bottom: 8px; white-space: pre-wrap;">${markerData.description}</p>` : ''}
+            ${onMarkerClick ? `<button 
+              onclick="window.markerClick && window.markerClick('${markerData.id}')"
+              style="
+                background-color: #3b82f6;
+                color: white;
+                padding: 6px 12px;
+                border-radius: 4px;
+                border: none;
+                cursor: pointer;
+                font-size: 14px;
+              "
+            >
+              View Details
+            </button>` : ''}
+          </div>
+        `;
+        
+        marker.bindPopup(popupContent);
 
-      return marker;
-    });
+        return marker;
+      } catch (error) {
+        console.error('Error adding marker:', error);
+        return null;
+      }
+    }).filter(marker => marker !== null) as L.Marker[];
 
     setMapMarkers(newMarkers);
 

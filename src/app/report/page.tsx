@@ -231,7 +231,9 @@ export default function ReportPage() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     GPS Coordinates
                   </label>
-                  <div className="flex space-x-2">
+                  
+                  {/* Coordinate Inputs */}
+                  <div className="flex space-x-2 mb-2">
                     <input
                       type="number"
                       step="any"
@@ -239,7 +241,7 @@ export default function ReportPage() {
                       value={formData.last_seen_latitude}
                       onChange={handleChange}
                       placeholder="Latitude"
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-gray-900"
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-gray-900 text-sm"
                     />
                     <input
                       type="number"
@@ -248,26 +250,31 @@ export default function ReportPage() {
                       value={formData.last_seen_longitude}
                       onChange={handleChange}
                       placeholder="Longitude"
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-gray-900"
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-gray-900 text-sm"
                     />
+                  </div>
+                  
+                  {/* Action Buttons - Stack on mobile, side by side on tablet+ */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <button
                       type="button"
                       onClick={handleGetCurrentLocation}
                       disabled={gettingLocation}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50 whitespace-nowrap"
+                      className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50 text-sm font-medium"
                     >
-                      {gettingLocation ? '📍...' : '📍 Use Current'}
+                      {gettingLocation ? '📍 Getting Location...' : '📍 Use Current Location'}
                     </button>
                     <button
                       type="button"
                       onClick={() => setShowMap(!showMap)}
-                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition whitespace-nowrap"
+                      className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium"
                     >
                       {showMap ? '✕ Hide Map' : '🗺️ Select on Map'}
                     </button>
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Click &quot;Use Current&quot; to get your location, or &quot;Select on Map&quot; to choose a location by clicking
+                  
+                  <p className="text-xs text-gray-500 mt-2">
+                    💡 Click &quot;Use Current Location&quot; to get your GPS position, or &quot;Select on Map&quot; to choose by clicking on the map
                   </p>
                   
                   {/* Location Error Helper */}
