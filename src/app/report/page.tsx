@@ -8,13 +8,16 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLocation } from '@/contexts/LocationContext';
 import toast from 'react-hot-toast';
 import MapView from '@/components/MapView';
+import LocationPermissionHelper from '@/components/LocationPermissionHelper';
 
 export default function ReportPage() {
   const router = useRouter();
   const { token } = useAuth();
-  const { currentLocation, requestPermission } = useLocation();
+  const { currentLocation, requestPermission, error: locationError } = useLocation();
   const [loading, setLoading] = useState(false);
   const [gettingLocation, setGettingLocation] = useState(false);
+  const [showMap, setShowMap] = useState(false);
+  const [showLocationHelp, setShowLocationHelp] = useState(false);
   const [formData, setFormData] = useState({
     full_name: '',
     age: '',
@@ -49,6 +52,8 @@ export default function ReportPage() {
 
   const handleGetCurrentLocation = async () => {
     setGettingLocation(true);
+    setShowLocationHelp(false);
+    
     try {
       const granted = await requestPermission();
       if (granted && currentLocation) {
@@ -58,6 +63,7 @@ export default function ReportPage() {
           last_seen_longitude: currentLocation.longitude.toString(),
         });
         toast.success('Current location captured!');
+        setShowLocationHelp(false);
       } else {
         // Try to get location directly if currentLocation is not yet set
         if ('geolocation' in navigator) {
@@ -69,19 +75,46 @@ export default function ReportPage() {
                 last_seen_longitude: position.coords.longitude.toString(),
               });
               toast.success('Current location captured!');
+              setShowLocationHelp(false);
             },
             (error) => {
-              toast.error('Failed to get location. Please enable location access.');
+              console.error('Location error:', error);
+              setShowLocationHelp(true);
+              if (error.code === error.TIMEOUT) {
+                toast.error('GPS timeout. Please wait and try again.');
+              } else if (error.code === error.PERMISSION_DENIED) {
+                toast.error('Location permission denied. Check your browser settings.');
+              } else {
+                toast.error('Failed to get location. Please try again.');
+              }
             },
-            { enableHighAccuracy: true }
+            { 
+              enableHighAccuracy: true,
+              timeout: 15000,
+              maximumAge: 30000
+            }
           );
+        } else {
+          toast.error('Geolocation not supported by your browser');
+          setShowLocationHelp(true);
         }
       }
     } catch (error) {
+      console.error('Failed to get location:', error);
+      setShowLocationHelp(true);
       toast.error('Failed to get location');
     } finally {
       setGettingLocation(false);
     }
+  };
+
+  const handleMapClick = (lat: number, lng: number) => {
+    setFormData({
+      ...formData,
+      last_seen_latitude: lat.toString(),
+      last_seen_longitude: lng.toString(),
+    });
+    toast.success('Location selected on map!');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -225,13 +258,66 @@ export default function ReportPage() {
                     >
                       {gettingLocation ? '📍...' : '📍 Use Current'}
                     </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowMap(!showMap)}
+                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition whitespace-nowrap"
+                    >
+                      {showMap ? '✕ Hide Map' : '🗺️ Select on Map'}
+                    </button>
                   </div>
                   <p className="text-xs text-gray-500 mt-1">
-                    Click &quot;Use Current&quot; to automatically capture your current GPS location
+                    Click &quot;Use Current&quot; to get your location, or &quot;Select on Map&quot; to choose a location by clicking
                   </p>
+                  
+                  {/* Location Error Helper */}
+                  {(showLocationHelp || locationError) && (
+                    <div className="mt-3">
+                      <LocationPermissionHelper 
+                        error={locationError || 'Location access failed'}
+                        onRetry={handleGetCurrentLocation}
+                      />
+                    </div>
+                  )}
                 </div>
 
-                {formData.last_seen_latitude && formData.last_seen_longitude && (
+                {showMap && (
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Click on Map to Select Location
+                    </label>
+                    <div className="border-2 border-blue-300 rounded-lg p-2 bg-blue-50">
+                      <p className="text-sm text-blue-700 mb-2">
+                        💡 Tip: Click anywhere on the map to select the last seen location
+                      </p>
+                      <MapView
+                        center={
+                          formData.last_seen_latitude && formData.last_seen_longitude
+                            ? [parseFloat(formData.last_seen_latitude), parseFloat(formData.last_seen_longitude)]
+                            : [37.7749, -122.4194] // Default to San Francisco
+                        }
+                        zoom={formData.last_seen_latitude && formData.last_seen_longitude ? 15 : 10}
+                        markers={
+                          formData.last_seen_latitude && formData.last_seen_longitude
+                            ? [
+                                {
+                                  id: 'selected',
+                                  position: [parseFloat(formData.last_seen_latitude), parseFloat(formData.last_seen_longitude)],
+                                  title: 'Selected Location',
+                                  type: 'missing'
+                                }
+                              ]
+                            : []
+                        }
+                        height="400px"
+                        enableClickToSelect={true}
+                        onMapClick={handleMapClick}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {formData.last_seen_latitude && formData.last_seen_longitude && !showMap && (
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Location Preview

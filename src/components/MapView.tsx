@@ -24,8 +24,10 @@ interface MapViewProps {
     type?: 'user' | 'missing' | 'found';
   }>;
   onMarkerClick?: (id: string | number) => void;
+  onMapClick?: (lat: number, lng: number) => void;
   height?: string;
   className?: string;
+  enableClickToSelect?: boolean;
 }
 
 const MapView: React.FC<MapViewProps> = ({
@@ -33,11 +35,14 @@ const MapView: React.FC<MapViewProps> = ({
   zoom = 13,
   markers = [],
   onMarkerClick,
+  onMapClick,
   height = '400px',
-  className = ''
+  className = '',
+  enableClickToSelect = false
 }) => {
   const [map, setMap] = useState<L.Map | null>(null);
   const [mapMarkers, setMapMarkers] = useState<L.Marker[]>([]);
+  const [selectedMarker, setSelectedMarker] = useState<L.Marker | null>(null);
 
   useEffect(() => {
     // Only run on client side
@@ -55,17 +60,76 @@ const MapView: React.FC<MapViewProps> = ({
       maxZoom: 19,
     }).addTo(newMap);
 
+    // Add click handler for selecting location
+    if (enableClickToSelect && onMapClick) {
+      newMap.on('click', (e: L.LeafletMouseEvent) => {
+        const { lat, lng } = e.latlng;
+        onMapClick(lat, lng);
+        
+        // Remove previous selected marker if exists
+        if (selectedMarker) {
+          selectedMarker.remove();
+        }
+
+        // Add a new marker at clicked location
+        const marker = L.marker([lat, lng], {
+          icon: L.divIcon({
+            className: 'custom-marker',
+            html: `
+              <div style="
+                background-color: #ef4444;
+                width: 30px;
+                height: 30px;
+                border-radius: 50% 50% 50% 0;
+                transform: rotate(-45deg);
+                border: 2px solid white;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+              ">
+                <div style="
+                  transform: rotate(45deg);
+                  color: white;
+                  text-align: center;
+                  line-height: 26px;
+                  font-size: 16px;
+                  font-weight: bold;
+                ">
+                  📍
+                </div>
+              </div>
+            `,
+            iconSize: [30, 30],
+            iconAnchor: [15, 30],
+            popupAnchor: [0, -30],
+          })
+        }).addTo(newMap);
+
+        marker.bindPopup(`
+          <div style="text-align: center;">
+            <strong>Selected Location</strong><br/>
+            Lat: ${lat.toFixed(6)}<br/>
+            Lng: ${lng.toFixed(6)}
+          </div>
+        `).openPopup();
+
+        setSelectedMarker(marker);
+      });
+    }
+
     setMap(newMap);
 
     return () => {
       newMap.remove();
     };
-  }, []);
+  }, [enableClickToSelect, onMapClick]);
 
   // Update map center when center prop changes
   useEffect(() => {
-    if (map && center) {
-      map.setView(center, zoom);
+    if (map && center && center[0] !== 0 && center[1] !== 0) {
+      try {
+        map.setView(center, zoom);
+      } catch (error) {
+        console.error('Error setting map view:', error);
+      }
     }
   }, [map, center, zoom]);
 
@@ -73,7 +137,7 @@ const MapView: React.FC<MapViewProps> = ({
   useEffect(() => {
     if (!map) return;
 
-    // Remove old markers
+    // Remove old markers (but not the selected marker if in select mode)
     mapMarkers.forEach(marker => marker.remove());
 
     // Create custom icons based on marker type
@@ -126,8 +190,8 @@ const MapView: React.FC<MapViewProps> = ({
       const popupContent = `
         <div style="min-width: 200px;">
           <h3 style="font-weight: bold; margin-bottom: 8px;">${markerData.title}</h3>
-          ${markerData.description ? `<p style="margin-bottom: 8px;">${markerData.description}</p>` : ''}
-          <button 
+          ${markerData.description ? `<p style="margin-bottom: 8px; white-space: pre-wrap;">${markerData.description}</p>` : ''}
+          ${onMarkerClick ? `<button 
             onclick="window.markerClick && window.markerClick('${markerData.id}')"
             style="
               background-color: #3b82f6;
@@ -140,7 +204,7 @@ const MapView: React.FC<MapViewProps> = ({
             "
           >
             View Details
-          </button>
+          </button>` : ''}
         </div>
       `;
       
@@ -152,7 +216,7 @@ const MapView: React.FC<MapViewProps> = ({
     setMapMarkers(newMarkers);
 
     // Fit bounds to show all markers
-    if (newMarkers.length > 0) {
+    if (newMarkers.length > 0 && !enableClickToSelect) {
       const group = L.featureGroup(newMarkers);
       map.fitBounds(group.getBounds().pad(0.1));
     }
@@ -165,7 +229,7 @@ const MapView: React.FC<MapViewProps> = ({
     return () => {
       (window as any).markerClick = undefined;
     };
-  }, [map, markers, onMarkerClick]);
+  }, [map, markers, onMarkerClick, enableClickToSelect]);
 
   return (
     <div className={className}>

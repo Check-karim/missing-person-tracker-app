@@ -44,8 +44,8 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
       const position = await new Promise<GeolocationPosition>((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(resolve, reject, {
           enableHighAccuracy: true,
-          timeout: 5000,
-          maximumAge: 0
+          timeout: 15000, // Increased to 15 seconds for slower GPS
+          maximumAge: 30000 // Allow cached location up to 30 seconds old
         });
       });
 
@@ -62,13 +62,13 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
       if (err instanceof GeolocationPositionError) {
         switch (err.code) {
           case err.PERMISSION_DENIED:
-            setError('Location permission denied. Please enable location access in your browser settings.');
+            setError('Location permission denied. Please enable location access in your browser/device settings.');
             break;
           case err.POSITION_UNAVAILABLE:
-            setError('Location information unavailable.');
+            setError('Location information unavailable. Make sure GPS is enabled on your device.');
             break;
           case err.TIMEOUT:
-            setError('Location request timed out.');
+            setError('Location request timed out. Try again or check if GPS is enabled.');
             break;
           default:
             setError('An unknown error occurred while requesting location.');
@@ -169,18 +169,25 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
         };
         
         setCurrentLocation(location);
+        setError(null); // Clear any previous errors
         
         // Update server with new location
         updateLocationToServer(location);
       },
       (err) => {
         console.error('Location error:', err);
-        setError('Failed to get location updates');
+        if (err.code === err.TIMEOUT) {
+          setError('GPS signal weak. Trying again...');
+        } else if (err.code === err.POSITION_UNAVAILABLE) {
+          setError('GPS unavailable. Make sure location services are enabled.');
+        } else {
+          setError('Failed to get location updates');
+        }
       },
       {
         enableHighAccuracy: true,
-        maximumAge: 10000, // 10 seconds
-        timeout: 5000
+        maximumAge: 30000, // Allow cached location up to 30 seconds
+        timeout: 15000 // Increased timeout for slower GPS
       }
     );
 

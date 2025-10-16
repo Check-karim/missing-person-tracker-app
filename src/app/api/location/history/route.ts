@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     const token = authHeader.substring(7);
     const decoded = verifyToken(token);
     
-    if (!decoded || !decoded.userId) {
+    if (!decoded || !decoded.id) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
@@ -22,17 +22,17 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '100');
 
     // If userId is provided, check if requester is admin or the user themselves
-    let targetUserId = decoded.userId;
+    let targetUserId = decoded.id;
     
     if (userId) {
       const userResult = await query(
         'SELECT is_admin FROM users WHERE id = ?',
-        [decoded.userId]
+        [decoded.id]
       );
 
       const isAdmin = userResult && (userResult as any[]).length > 0 && (userResult as any[])[0].is_admin;
       
-      if (!isAdmin && parseInt(userId) !== decoded.userId) {
+      if (!isAdmin && parseInt(userId) !== decoded.id) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
       }
       

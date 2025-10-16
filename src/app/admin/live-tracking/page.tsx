@@ -84,17 +84,17 @@ export default function LiveTrackingPage() {
   // Prepare markers for map
   const markers = locations.map((loc) => ({
     id: loc.user_id,
-    position: [loc.latitude, loc.longitude] as [number, number],
+    position: [Number(loc.latitude), Number(loc.longitude)] as [number, number],
     title: loc.full_name,
-    description: `Email: ${loc.email}\nPhone: ${loc.phone}\nLast updated: ${new Date(loc.timestamp).toLocaleString()}\nAccuracy: ${Math.round(loc.accuracy)}m`,
+    description: `Email: ${loc.email}\nPhone: ${loc.phone}\nLast updated: ${new Date(loc.timestamp).toLocaleString()}\nAccuracy: ${Math.round(Number(loc.accuracy))}m`,
     type: 'user' as const,
   }));
 
   // Calculate center of map (average of all locations)
   const mapCenter: [number, number] = locations.length > 0
     ? [
-        locations.reduce((sum, loc) => sum + loc.latitude, 0) / locations.length,
-        locations.reduce((sum, loc) => sum + loc.longitude, 0) / locations.length,
+        locations.reduce((sum, loc) => sum + Number(loc.latitude), 0) / locations.length,
+        locations.reduce((sum, loc) => sum + Number(loc.longitude), 0) / locations.length,
       ]
     : [0, 0];
 
@@ -245,11 +245,11 @@ export default function LiveTrackingPage() {
                         </td>
                         <td className="py-3 px-4">
                           <div className="text-sm text-gray-600">
-                            {location.latitude.toFixed(6)}, {location.longitude.toFixed(6)}
+                            {Number(location.latitude).toFixed(6)}, {Number(location.longitude).toFixed(6)}
                           </div>
                         </td>
                         <td className="py-3 px-4">
-                          <div className="text-sm text-gray-600">±{Math.round(location.accuracy)}m</div>
+                          <div className="text-sm text-gray-600">±{Math.round(Number(location.accuracy))}m</div>
                         </td>
                         <td className="py-3 px-4">
                           <div className="text-sm text-gray-600">
@@ -291,12 +291,12 @@ export default function LiveTrackingPage() {
                   <div>
                     <p className="text-sm text-gray-600">Coordinates</p>
                     <p className="font-medium text-gray-900">
-                      {selectedUser.latitude.toFixed(6)}, {selectedUser.longitude.toFixed(6)}
+                      {Number(selectedUser.latitude).toFixed(6)}, {Number(selectedUser.longitude).toFixed(6)}
                     </p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Accuracy</p>
-                    <p className="font-medium text-gray-900">±{Math.round(selectedUser.accuracy)} meters</p>
+                    <p className="font-medium text-gray-900">±{Math.round(Number(selectedUser.accuracy))} meters</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Last Updated</p>

@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     const token = authHeader.substring(7);
     const decoded = verifyToken(token);
     
-    if (!decoded || !decoded.userId) {
+    if (!decoded || !decoded.id) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
@@ -31,20 +31,20 @@ export async function POST(request: NextRequest) {
     // Update current location (delete old and insert new)
     await query(
       `DELETE FROM user_locations WHERE user_id = ?`,
-      [decoded.userId]
+      [decoded.id]
     );
     
     await query(
       `INSERT INTO user_locations (user_id, latitude, longitude, accuracy, timestamp) 
        VALUES (?, ?, ?, ?, NOW())`,
-      [decoded.userId, latitude, longitude, accuracy || null]
+      [decoded.id, latitude, longitude, accuracy || null]
     );
 
     // Add to location history
     await query(
       `INSERT INTO location_history (user_id, latitude, longitude, accuracy) 
        VALUES (?, ?, ?, ?)`,
-      [decoded.userId, latitude, longitude, accuracy || null]
+      [decoded.id, latitude, longitude, accuracy || null]
     );
 
     // Notify admin of location update
@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
         [
           admin.id,
           'User Location Update',
-          `User ID ${decoded.userId} location updated`,
+          `User ID ${decoded.id} location updated`,
           'general'
         ]
       );
